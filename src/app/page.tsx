@@ -1,95 +1,96 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+'use client'
+import { useEffect, useState } from "react";
+import { Header } from "../components/Header";
+import { Button, Input, Modal, Upload } from "antd";
+import { FaPlus } from "react-icons/fa";
+import { RcFile } from "antd/es/upload";
+import { toBase64 } from "@/util/Base64";
+import toast, { Toaster } from 'react-hot-toast';
+import toastTheme from "@/styles/ToastStyle";
 
 export default function Home() {
+
+  const [showAddModal, setShowAddModal] = useState<boolean>(false)
+  const [addFileName, setAddFileName] = useState<string>('')
+  const [addFile, setAddFile] = useState<any>(null)
+
+  const [sounds, setSounds] = useState<any[]>([])
+
+  useEffect(() => {
+    init()
+  }, [])
+
+  const init = async () => {
+    const res = await fetch('/api/v1/sounds')
+    const data = await res.json()
+
+    console.log(data)
+
+    setSounds(data.sounds)
+  }
+
+  const play = (audio: any) => {
+    new Audio(audio.file).play()
+  }
+
+  const uploadFile = async (file: RcFile) => {
+    const b64File = await toBase64(file)
+    setAddFile(b64File)
+  }
+
+  const add = async () => {
+
+    const res = await fetch('/api/v1/sounds', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: addFileName,
+        file: addFile
+      })
+
+    })
+
+    const data = await res.json()
+    console.log(data)
+
+    if(data.message === "Successfully uploaded audio file!") {
+      init()
+      toast.success(data.message, toastTheme)
+      setShowAddModal(false)
+    }
+    else {
+      toast.error(data.message, toastTheme)
+    }
+  }
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+    <main>
+      <Header />
+      <div className='container'>
+        <div className='sounds'>
+          <div className='add'>
+            <Button icon={<FaPlus />} onClick={() => setShowAddModal(true)}>Add</Button>
+          </div>
+          <div className='buttons'>
+            {
+              sounds.map((sound) => (
+                <Button key={sound.id} onClick={() => play(sound)}>{sound.name}</Button>
+              ))
+            }
+          </div>
+
         </div>
       </div>
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+      <Modal title='Add Sound' open={showAddModal} footer={null} onCancel={() => setShowAddModal(false)}>
+        <Input placeholder='Name' onChange={(e) => setAddFileName(e.target.value)} />
+        <Upload beforeUpload={uploadFile} accept=".mp3,.ogg" maxCount={1}>
+          <Button className='upload-btn'>Upload File</Button>
+        </Upload>
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+        <Button type="primary" onClick={() => add()} className='add-sound-btn'>Add</Button>
+      </Modal>
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
+      <Toaster />
     </main>
   )
 }
