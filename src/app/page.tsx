@@ -41,7 +41,7 @@ export default function Home() {
 
   const add = async () => {
 
-    if(!addFileName || !addFile || addFile.) 
+    if(!addFileName || !addFile) 
       return
 
     const res = await fetch('/api/v1/sounds', {
