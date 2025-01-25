@@ -56,6 +56,9 @@ export default function Home() {
       init()
       toast.success(data.message, toastTheme)
       setShowAddModal(false)
+
+      setAddFileName('')
+      setAddFile(null)
     }
     else {
       toast.error(data.message, toastTheme)
