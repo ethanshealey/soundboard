@@ -34,11 +34,15 @@ export default function Home() {
   }
 
   const uploadFile = async (file: RcFile) => {
+    if(file.size < 100) return
     const b64File = await toBase64(file)
     setAddFile(b64File)
   }
 
   const add = async () => {
+
+    if(!addFileName || !addFile || addFile.) 
+      return
 
     const res = await fetch('/api/v1/sounds', {
       method: 'POST',
