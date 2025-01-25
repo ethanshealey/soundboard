@@ -89,7 +89,7 @@ export default function Home() {
       </div>
 
       <Modal title='Add Sound' open={showAddModal} footer={null} onCancel={() => setShowAddModal(false)}>
-        <Input placeholder='Name' onChange={(e) => setAddFileName(e.target.value)} />
+        <Input placeholder='Name' value={addFileName} onChange={(e) => setAddFileName(e.target.value)} />
         <Upload beforeUpload={uploadFile} accept=".mp3,.ogg" maxCount={1}>
           <Button className='upload-btn'>Upload File</Button>
         </Upload>
