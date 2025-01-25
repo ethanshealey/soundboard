@@ -35,6 +35,7 @@ export default function Home() {
 
   const uploadFile = async (file: RcFile) => {
     if(file.size < 100) return
+    if(file.type !== 'audio/mpeg' && file.type !== 'audio/ogg') return
     const b64File = await toBase64(file)
     setAddFile(b64File)
   }
